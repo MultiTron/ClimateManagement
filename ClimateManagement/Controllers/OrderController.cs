@@ -64,6 +64,7 @@ namespace ClimateManagement.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
+        [Authorize(Roles = "Tech, Administrator, Customer")]
         public async Task<IActionResult> Create(Order order)
         {
                 MemoryStream ms = new MemoryStream();
@@ -78,7 +79,16 @@ namespace ClimateManagement.Controllers
                 order.Mechanic = null;
                 _context.Add(order);
                 await _context.SaveChangesAsync();
-                return RedirectToAction(nameof(Index));
+            
+                if(User.IsInRole("Administrator") || User.IsInRole("Tech"))
+                {
+                    return RedirectToAction(nameof(Index));
+
+                }
+                else
+                {
+                    return RedirectToAction("Index", "Home");
+                }
         }
 
         // GET: Order/Edit/5
